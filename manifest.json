@@ -1,6 +1,16 @@
 {
-  "name": "Hey",
+  "name": "RateMyMustang",
   "version": "1.0",
   "description": "extension",
-  "browser_action": {}
+  "permissions": ["http://www.ratemyprofessors.com/*"],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "http://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm",
+        "https://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm"
+      ],
+      "js": ["resources/jquery-3.2.1.js", "main.js"]    
+    }
+  ]
 }
