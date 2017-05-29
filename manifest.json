@@ -1,16 +1,21 @@
 {
+  "manifest_version": 2,
   "name": "RateMyMustang",
   "version": "1.0",
   "description": "extension",
-  "permissions": ["http://www.ratemyprofessors.com/*"],
+  "permissions": [
+      "http://ratemyprofessors.com/",
+      "https://www.ratemyprofessors.com/"
+    ],
 
   "content_scripts": [
     {
-      "matches": [
-        "http://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm",
-        "https://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm"
-      ],
-      "js": ["resources/jquery-3.2.1.js", "main.js"]    
-    }
-  ]
+        "matches": [
+              "http://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm",
+              "https://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm"
+            ],
+        "js": ["resources/jquery-3.2.1.js", "main.js"],
+        "css": ["styles.css"]
+      }
+    ]
 }
