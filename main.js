@@ -2,26 +2,23 @@ const thIndex = 8;
 const rateMyProfSearchURL = "https://www.ratemyprofessors.com/search.jsp?queryBy=teacherName";
 const schoolQuery = "&schoolName=university+of+western+ontario";
 
-function getProfNames() {
-  let profs = [];
+function addRatingsButtonToProfCell() {
+  let profs = {};
   $("table td:nth-child("+ thIndex +")").each(function(){
-    let cellText = $(this)[0].innerHTML;
-    cellText = cellText.replace(/\n/g, ' ');
-    cellText = cellText.replace(/<br>/g, ' ');
 
-    let namesInCell = cellText.split(" ");
-    if(namesInCell.length > 0) {
-      for (let i = 0; i < namesInCell.length; i++) {
-        let name = namesInCell[i];
+    let cell = $(this)[0];
+    let cellText = cell.innerText;
+    cellText = cellText.replace(/ /g, '');
 
-        if (/\S/.test(name)) {
-          const profQuery = `&query=${name}`;
-          const query = `${rateMyProfSearchURL}${schoolQuery}&queryoption=HEADER${profQuery}&facetSearch=true`;
-          $(this)[0].innerHTML = "<a href=" + query + ">" + cellText + "</a>";
-          if($.inArray(name, profs) === -1) profs.push(name)
-        }
-      }
+    if(!isBlank(cellText)) {
+      // Make list of unique prof names on page
+      if(!profs[cellText]) profs[cellText] = true;
+
+      const profQuery = `&query=${cellText}`;
+      let button = $(this)[0];
+      button.query = `${rateMyProfSearchURL}${schoolQuery}&queryoption=HEADER${profQuery}&facetSearch=true`;
+      button.innerHTML += '<input type="button" value="Show Rating" />';
+      button.addEventListener('click', handleRatingRequest);
     }
   });
-  return profs;
 }
