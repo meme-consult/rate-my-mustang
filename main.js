@@ -22,3 +22,25 @@ function addRatingsButtonToProfCell() {
     }
   });
 }
+
+function handleRatingRequest() {
+
+  // Search for a prof at Western to get a list of RMP search results
+  $.ajax({
+    url: this.query
+  }).done( function(response) {
+    const firstSearchResult = $(response).find('.PROFESSOR a')[0];
+    const profIdQuery = $(firstSearchResult).attr('href');
+
+    // Take the first link to a profs rating page, and get the prof quality  and difficulty.
+    $.ajax({
+      url: `http://ratemyprofessors.com/${profIdQuery}`
+    }).done( function(response) {
+      const prof = {
+        quality: $(response).find('.quality .grade')[0].innerText,
+        difficulty: $(response).find('.difficulty .grade')[0].innerText.trim()
+      };
+
+    });
+  });
+};
