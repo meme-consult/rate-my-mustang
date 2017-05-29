@@ -2,6 +2,9 @@ const thIndex = 8;
 const rateMyProfSearchURL = "https://www.ratemyprofessors.com/search.jsp?queryBy=teacherName";
 const schoolQuery = "&schoolName=university+of+western+ontario";
 
+function main(){
+  addRatingsButtonToProfCell();
+}
 function addRatingsButtonToProfCell() {
   let profs = {};
   $("table td:nth-child("+ thIndex +")").each(function(){
@@ -73,3 +76,9 @@ function createRatingsDisplay(profData, element) {
   ratings.appendChild(difficulty);
   console.log(element);
 };
+
+function isBlank(str) {
+  return (!str || /^\s*$/.test(str)/);
+}
+
+main();
