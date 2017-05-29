@@ -25,15 +25,3 @@ function getProfNames() {
   });
   return profs;
 }
-function cleanArray(arr) {
-  temp = [];
-  for (let i of arr) {
-    i && temp.push(i);
-  }
-  arr = temp;
-  delete temp;
-  return arr;
-}
-
-console.log(cleanArray(getProfNames()));
-
