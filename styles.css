@@ -1,0 +1,82 @@
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.rmp-link {
+  color: grey;
+}
+.rmp-link:hover {
+  color: #4F2683;
+}
+
+.rating {
+
+}
+
+.error {
+  color: red;
+}
+.grade {
+  font-family: Tahoma, Geneva, sans-serif;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.hidden {
+  display: none;
+}
+
+.chevron::before {
+  margin-top: 1px;
+  margin-left: 4px;
+  cursor: pointer;
+	border-style: solid;
+	border-width: 0.25em 0.25em 0 0;
+	content: '';
+	display: inline-block;
+	height: 0.75em;
+	left: 0.25em;
+	position: relative;
+	top: 0.25em;
+	transform: rotate(-45deg);
+	vertical-align: top;
+	width: 0.75em;
+  border-color: #4F2683; // UWO purple
+
+  /*box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);*/
+}
+.chevron.down-chevron:before {
+	top: 0;
+	transform: rotate(135deg);
+}
+
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #4F2683; // UWO purple
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.rating-header {
+  font-weight: bold;
+}
+
+.rating-container {
+  margin: 1px;
+}
+
+.rating-bar {
+  color: white;
+  background-color: #4F2683; // UWO purple
+  text-align: center;
+}
