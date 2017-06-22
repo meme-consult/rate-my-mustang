@@ -44,7 +44,7 @@
 	transform: rotate(-45deg);
 	vertical-align: top;
 	width: 0.75em;
-  border-color: #4F2683; // UWO purple
+  border-color: #4F2683; //UWO purple
 
   /*box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);*/
 }
@@ -55,7 +55,7 @@
 
 .loader {
     border: 4px solid #f3f3f3; /* Light grey */
-    border-top: 4px solid #4F2683; // UWO purple
+    border-top: 4px solid #4F2683; /* UWO Purple */
     border-radius: 50%;
     width: 24px;
     height: 24px;
@@ -75,8 +75,16 @@
   margin: 1px;
 }
 
+.ratings-count {
+  width: 25%;
+  color: white;
+  text-align: center;
+  background-color: #4F2683;
+  border-radius: 50%;
+}
+
 .rating-bar {
   color: white;
-  background-color: #4F2683; // UWO purple
+  background-color: #4F2683;
   text-align: center;
 }

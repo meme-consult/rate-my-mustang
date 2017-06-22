@@ -112,7 +112,7 @@ function retrieveRatingFromRMP(profSearchQuery, cell) {
       url: profRatingURL,
       quality: $(response).find('.quality .grade')[0].innerText,
       difficulty: $(response).find('.difficulty .grade')[0].innerText.trim(),
-      numRatings: $(response).find('.rating-count')
+      studentRatings: $(response).find('.rating-count')[0].innerText.trim()
     };
     return createRatingDiv(profData, cell);
   }).catch( function(err) {
@@ -128,32 +128,46 @@ function getProfRatingURL(response) {
 };
 
 function createRatingDiv(profData, element) {
-  const {url, quality, difficulty, numRatings} = profData;
+  const {url, quality, difficulty, studentRatings} = profData;
   let ratingDiv= document.createElement('div');
   $(ratingDiv).addClass('rating');
   const linkToRMP = createRmpLink(url);
 
+
   let qualityHeader = document.createElement('span');
   qualityHeader.innerText = "Quality";
   $(qualityHeader).addClass('rating-header');
+  ratingDiv.appendChild(qualityHeader);
+  ratingDiv.appendChild(ratingBar(quality));
 
   let difficultyHeader = document.createElement('span');
   difficultyHeader.innerText = "Difficulty";
   $(difficultyHeader).addClass('rating-header');
-
-  let ratingsCount = document.createElement('span');
-  ratingDiv.appendChild(ratingsCount);
-
-  ratingDiv.appendChild(qualityHeader);
-  ratingDiv.appendChild(ratingBar(quality));
-
   ratingDiv.appendChild(difficultyHeader);
   ratingDiv.appendChild(ratingBar(difficulty));
+
+
+  let ratingsCountHeader = document.createElement('div');
+  ratingsCountHeader.innerText = 'Reviews';
+  $(ratingsCountHeader).addClass('rating-header');
+  ratingDiv.appendChild(ratingsCountHeader);
+
+  const numRatings = getNumberOfRatings(studentRatings);
+  let ratingsCountDiv = document.createElement('div');
+  ratingsCountDiv.innerText = numRatings;
+  $(ratingsCountDiv).addClass('ratings-count rating-container');
+  ratingDiv.appendChild(ratingsCountDiv);
+
+
+
 
   ratingDiv.appendChild(linkToRMP);
   return ratingDiv;
 };
 
+function getNumberOfRatings(numRatingsString) {
+  return numRatingsString.substr(0, numRatingsString.indexOf(" "));
+}
 
 function ratingBar(ratingString){
   let ratingPercent = parseFloat(ratingString);
