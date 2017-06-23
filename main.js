@@ -16,10 +16,24 @@ function main() {
 function addButtonsToTimetable(){
   $("table td:nth-child("+ profIndex +")").each(function(){
     let cell = $(this)[0];
-    const profName = cell.innerText.replace(/ /g,  '');
-    if(isNotBlank(profName)) {
-      cell.appendChild(createButton(profName, cell));
+    const cellText = cell.innerText.replace(/\n/g,  '*');
+    const profNames = cellText.split('*').filter(String);
+    cell.innerText = '';
+
+    if (profNames.length != 0) {
+      splitCell(profNames, cell);
     }
+  });
+}
+
+function splitCell(names, cell) {
+  names.map( name => {
+    name = name.replace(/ /g, '-');
+    const nameCell = document.createElement('div');
+    nameCell.innerText = name;
+    $(nameCell).addClass('name-cell');
+    nameCell.appendChild(createButton(name, nameCell));
+    cell.appendChild(nameCell);
   });
 }
 
@@ -64,10 +78,16 @@ function fetchRating(button, cell, profName) {
     const loader = createLoaderOn(cell);
     const profSearchURL = button.query;
 
-    retrieveRatingFromRMP(profSearchURL, cell).then( function(ratingDiv) {
+    retrieveRatingFromRMP(profSearchURL, cell).then( function(profData) {
       cell.removeChild(loader);
-      if(!ratingDiv) throw `Couldn't find ${profName}.`;
+      if(!profData) throw `No ratings for '${profName}'.`;
+
+      const link = createRmpLink(cell.innerText, profData.url);
+      removeTextNodes(cell);
+      cell.insertBefore(link, cell.firstChild);
+      let ratingDiv = createRatingDiv(profData, cell);
       profRatings[profName] = ratingDiv;
+
       showRating(button, cell, ratingDiv);
     }).catch( function(err) {
       $(button).removeClass('down-chevron');
@@ -114,7 +134,7 @@ function retrieveRatingFromRMP(profSearchQuery, cell) {
       difficulty: $(response).find('.difficulty .grade')[0].innerText.trim(),
       studentRatings: $(response).find('.rating-count')[0].innerText.trim()
     };
-    return createRatingDiv(profData, cell);
+    return profData;
   }).catch( function(err) {
     console.log(err);
   });
@@ -131,8 +151,6 @@ function createRatingDiv(profData, element) {
   const {url, quality, difficulty, studentRatings} = profData;
   let ratingDiv= document.createElement('div');
   $(ratingDiv).addClass('rating');
-  const linkToRMP = createRmpLink(url);
-
 
   let qualityHeader = document.createElement('span');
   qualityHeader.innerText = "Quality";
@@ -158,10 +176,6 @@ function createRatingDiv(profData, element) {
   $(ratingsCountDiv).addClass('ratings-count rating-container');
   ratingDiv.appendChild(ratingsCountDiv);
 
-
-
-
-  ratingDiv.appendChild(linkToRMP);
   return ratingDiv;
 };
 
@@ -182,15 +196,20 @@ function ratingBar(ratingString){
   return container;
 }
 
-function createRmpLink(url) {
+function createRmpLink(name, url) {
   let link = document.createElement('a');
     $(link).addClass('rmp-link');
     link.href = url;
-    link.innerText = 'RateMyProf';
+    link.innerText = name;
     link.target = "_blank";
   return link;
 }
 
+function removeTextNodes(element) {
+  $(element).contents().filter(function() {
+      return this.nodeType===3;
+  }).remove();
+}
 
 function createErrorMessage(message, cell, searchURL) {
   const err = document.createElement('a');

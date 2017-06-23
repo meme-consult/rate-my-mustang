@@ -1,14 +1,12 @@
-.tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black;
-}
-
 .rmp-link {
   color: grey;
 }
 .rmp-link:hover {
   color: #4F2683;
+}
+
+.name-cell {
+    margin-bottom: 5px;
 }
 
 .rating {
@@ -17,6 +15,7 @@
 
 .error {
   color: red;
+  display: block;
 }
 .grade {
   font-family: Tahoma, Geneva, sans-serif;
@@ -76,7 +75,7 @@
 }
 
 .ratings-count {
-  width: 25%;
+  width: 50%;
   color: white;
   text-align: center;
   background-color: #4F2683;
