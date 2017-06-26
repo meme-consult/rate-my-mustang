@@ -1,9 +1,7 @@
-//TODO: Handle multiple profNames per cell
-
-// The index of the "Professor" column on the UWO Timetable website (http://studentservices.uwo.ca/secure/timetables/mastertt/ttindex.cfm)
-const profIndex = 8;
-const rateMyProfSearchURL = "https://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&schoolName=university+of+western+ontario";
-let profRatings = {};
+const indexOfProfessorColumn = 8;
+const professorsCells = `table td:nth-child(${indexOfProfessorColumn})`
+const RMPWesternSearchURL = "https://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&schoolName=university+of+western+ontario";
+let profRatingDivs = {};
 
 function main() {
   try {
@@ -14,44 +12,47 @@ function main() {
 };
 
 function addButtonsToTimetable(){
-  $("table td:nth-child("+ profIndex +")").each(function(){
-    let cell = $(this)[0];
-    const cellText = cell.innerText.replace(/\n/g,  '*');
-    const profNames = cellText.split('*').filter(String);
-    cell.innerText = '';
+  $(professorsCells).each(function(){
+    let professorsCell = $(this)[0];
+    const textInCell = professorsCell.innerText.replace(/\n/g,  '*');
+    const professors = textInCell.split('*').filter(String);
+    professorsCell.innerText = '';
+    if (professors.length != 0) createChildCellForEachProfessor(professorsCell, professors);
 
-    if (profNames.length != 0) {
-      splitCell(profNames, cell);
-    }
+    $(professorsCell).children().each(function() {
+      professorCell = this;
+      const button = createButton(professorCell, professorCell.innerText);
+      this.appendChild(button);
+    });
   });
 }
 
-function splitCell(names, cell) {
-  names.map( name => {
-    name = name.replace(/ /g, '-');
-    const nameCell = document.createElement('div');
-    nameCell.innerText = name;
-    $(nameCell).addClass('name-cell');
-    nameCell.appendChild(createButton(name, nameCell));
-    cell.appendChild(nameCell);
+function createChildCellForEachProfessor(cell, professors) {
+  professors.map( professorName => {
+    professorName = professorName.replace(/ /g, '-');
+    const professorNameCell = document.createElement('div');
+    professorNameCell.innerText = professorName;
+    $(professorNameCell).addClass('name-cell');
+    cell.appendChild(professorNameCell);
   });
 }
 
-function createButton(profName, cell) {
+function createButton(cell, profName) {
   const profQuery = `&query=${profName}`
   let button =  document.createElement('span');
-  button.query = `${rateMyProfSearchURL}&queryoption=HEADER${profQuery}&facetSearch=true`;
+  button.query = `${RMPWesternSearchURL}&queryoption=HEADER${profQuery}&facetSearch=true`;
   button.clicked = false;
-  button.cell = cell;
+  $(button).addClass('chevron down-chevron');
+
   button.addEventListener('click', function() {
     const that = this;
-    toggleRatingDisplay(that, profName, cell);
+    toggleRatingDisplay(that, cell, profName);
   });
-  $(button).addClass('chevron down-chevron');
+
   return button;
 };
 
-function toggleRatingDisplay(button, profName, cell){
+function toggleRatingDisplay(button, cell, profName){
   if (button.clicked) {
     hideRating(button);
   } else {
@@ -70,36 +71,34 @@ function hideRating(button) {
 
 function fetchRating(button, cell, profName) {
   button.clicked = true;
-  const rating = profRatings[profName];
+  let ratingDiv = profRatingDivs[profName];
 
-  if (rating) {
-    showRating(button, cell, rating);
+  if (ratingDiv) {
+    showRating(button, cell, ratingDiv);
   } else {
     const loader = createLoaderOn(cell);
     const profSearchURL = button.query;
 
     retrieveRatingFromRMP(profSearchURL, cell).then( function(profData) {
       cell.removeChild(loader);
-      if(!profData) throw `No ratings for '${profName}'.`;
+      if(!profData) throw `Nobody has rated this prof!`;
 
       const link = createRmpLink(cell.innerText, profData.url);
       removeTextNodes(cell);
       cell.insertBefore(link, cell.firstChild);
-      let ratingDiv = createRatingDiv(profData, cell);
-      profRatings[profName] = ratingDiv;
+      ratingDiv = createRatingDiv(profData, cell);
+      profRatingDivs[profName] = ratingDiv;
 
       showRating(button, cell, ratingDiv);
     }).catch( function(err) {
       $(button).removeClass('down-chevron');
       createErrorMessage(err, cell, profSearchURL);
     });
-
   }
 }
 
 function showRating(button, cell, ratingDiv) {
   $(button).removeClass('down-chevron');
-
   const rating = getRatingDiv(cell);
   if (rating) {
     $(rating).removeClass('hidden');
@@ -149,41 +148,51 @@ function getProfRatingURL(response) {
 
 function createRatingDiv(profData, element) {
   const {url, quality, difficulty, studentRatings} = profData;
-  let ratingDiv= document.createElement('div');
-  $(ratingDiv).addClass('rating');
+  let ratingsDiv = document.createElement('div');
+  $(ratingsDiv).addClass('rating');
 
-  let qualityHeader = document.createElement('span');
-  qualityHeader.innerText = "Quality";
-  $(qualityHeader).addClass('rating-header');
-  ratingDiv.appendChild(qualityHeader);
-  ratingDiv.appendChild(ratingBar(quality));
+  const qualityBarWithHeader = createRatingBarWithHeader(quality, "Quality");
+  ratingsDiv.appendChild(qualityBarWithHeader);
 
-  let difficultyHeader = document.createElement('span');
-  difficultyHeader.innerText = "Difficulty";
-  $(difficultyHeader).addClass('rating-header');
-  ratingDiv.appendChild(difficultyHeader);
-  ratingDiv.appendChild(ratingBar(difficulty));
+  const difficultyBarWithHeader = createRatingBarWithHeader(difficulty, "Difficulty");
+  ratingsDiv.appendChild(difficultyBarWithHeader);
 
+  const ratingsCountWithHeader = createRatingsCountDiv(studentRatings);
+  ratingsDiv.appendChild(ratingsCountWithHeader);
 
-  let ratingsCountHeader = document.createElement('div');
-  ratingsCountHeader.innerText = 'Reviews';
-  $(ratingsCountHeader).addClass('rating-header');
-  ratingDiv.appendChild(ratingsCountHeader);
-
-  const numRatings = getNumberOfRatings(studentRatings);
-  let ratingsCountDiv = document.createElement('div');
-  ratingsCountDiv.innerText = numRatings;
-  $(ratingsCountDiv).addClass('ratings-count rating-container');
-  ratingDiv.appendChild(ratingsCountDiv);
-
-  return ratingDiv;
+  return ratingsDiv;
 };
+
+function createRatingBarWithHeader(rating, category) {
+  const barWithHeader = document.createElement('div');
+  barWithHeader.appendChild(createHeader(category));
+  barWithHeader.appendChild(createRatingBar(rating));
+  return barWithHeader;
+}
+
+function createRatingsCountDiv(studentRatings) {
+  const ratingsCountDiv = document.createElement('div');
+  ratingsCountDiv.appendChild(createHeader('Reviews'));
+  const numRatings = getNumberOfRatings(studentRatings);
+  let ratingsCounter = document.createElement('div');
+  ratingsCounter.innerText = numRatings;
+  $(ratingsCounter).addClass('ratings-count rating-container');
+  ratingsCountDiv.appendChild(ratingsCounter);
+  return ratingsCountDiv;
+}
+
+function createHeader(headerText) {
+  let header = document.createElement('span');
+  header.innerText = headerText;
+  $(header).addClass('rating-header');
+  return header;
+}
 
 function getNumberOfRatings(numRatingsString) {
   return numRatingsString.substr(0, numRatingsString.indexOf(" "));
 }
 
-function ratingBar(ratingString){
+function createRatingBar(ratingString){
   let ratingPercent = parseFloat(ratingString);
       ratingPercent *= 20;
   let container = document.createElement('div');
