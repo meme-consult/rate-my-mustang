@@ -1,6 +1,6 @@
 const indexOfProfessorColumn = 8;
 const professorsCells = `table td:nth-child(${indexOfProfessorColumn})`
-const RMPWesternSearchURL = "https://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&schoolName=university+of+western+ontario";
+const RMPWesternSearchURL = "https://www.ratemyprofessors.com/search.jsp?queryBy=teacherName&schoolName=university+of+new+mexico";
 let profRatingDivs = {};
 
 function main() {
